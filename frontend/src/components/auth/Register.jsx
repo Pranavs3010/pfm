@@ -188,3 +188,6 @@ const Register = () => {
 };
 
 export default Register;
+/*
+  This commit is done from Akmain branch
+*/
