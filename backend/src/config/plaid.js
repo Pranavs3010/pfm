@@ -1,11 +1,15 @@
 const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
 
+const CLIENT_ID = process.env.PLAID_CLIENT_ID;
+const PLAID_SECRET = process.env.PLAID_SECRET; 
+
+
 const configuration = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV],
   baseOptions: {
     headers: {
-      "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
-      "PLAID-SECRET": process.env.PLAID_SECRET,
+      "PLAID-CLIENT-ID": CLIENT_ID,
+      "PLAID-SECRET": PLAID_SECRET,
     },
   },
 });
