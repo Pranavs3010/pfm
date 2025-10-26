@@ -175,7 +175,7 @@ const AccountList = () => {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Account Type:</span>
                   <span className="font-medium text-gray-900 capitalize">
@@ -219,3 +219,6 @@ const AccountList = () => {
 };
 
 export default AccountList;
+/*
+  This commit is done from Akmain branch
+*/
