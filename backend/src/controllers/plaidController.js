@@ -3,7 +3,7 @@ const plaidService = require("../services/plaidService");
 const transactionService = require("../services/transactionService");
 const logger = require("../utils/logger");
 const moment = require("moment");
-
+ 
 exports.createLinkToken = async (req, res, next) => {
   try {
     console.log("=== PLAID DEBUG ===");
@@ -21,7 +21,6 @@ exports.createLinkToken = async (req, res, next) => {
     console.log("Link Token Value:", linkToken);
     console.log("=== END DEBUG ===");
 
-    // FIXED: Make sure we're returning the correct structure
     res.json({
       success: true,
       linkToken: linkToken, // Add this for compatibility
@@ -30,7 +29,7 @@ exports.createLinkToken = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("❌ Plaid Controller Error:", error.message);
+    console.error(" Plaid Controller Error:", error.message);
     console.error("Full error:", error);
 
     // Return a more detailed error
@@ -47,17 +46,17 @@ exports.exchangePublicToken = async (req, res, next) => {
   try {
     const { publicToken, institutionId, institutionName } = req.body;
 
-    console.log("📝 Exchanging public token...");
+    console.log(" Exchanging public token...");
     console.log("Institution:", institutionName);
 
     const { accessToken, itemId } = await plaidService.exchangePublicToken(
       publicToken
     );
 
-    console.log("✅ Access token received");
+    console.log(" Access token received");
 
     const plaidAccounts = await plaidService.getAccounts(accessToken);
-    console.log(`📊 Found ${plaidAccounts.length} accounts`);
+    console.log(` Found ${plaidAccounts.length} accounts`);
 
     const accounts = [];
     for (const plaidAccount of plaidAccounts) {
@@ -86,7 +85,7 @@ exports.exchangePublicToken = async (req, res, next) => {
     const endDate = moment().format("YYYY-MM-DD");
     const startDate = moment().subtract(30, "days").format("YYYY-MM-DD");
 
-    console.log(`📅 Syncing transactions from ${startDate} to ${endDate}`);
+    console.log(` Syncing transactions from ${startDate} to ${endDate}`);
 
     for (const account of accounts) {
       try {
@@ -107,11 +106,11 @@ exports.exchangePublicToken = async (req, res, next) => {
         );
 
         console.log(
-          `✅ Synced ${accountTransactions.length} transactions for ${account.accountName}`
+          ` Synced ${accountTransactions.length} transactions for ${account.accountName}`
         );
       } catch (syncError) {
         console.error(
-          `⚠️ Failed to sync transactions for account ${account.accountName}:`,
+          ` Failed to sync transactions for account ${account.accountName}:`,
           syncError.message
         );
         // Continue with other accounts even if one fails
@@ -127,7 +126,7 @@ exports.exchangePublicToken = async (req, res, next) => {
       data: accounts,
     });
   } catch (error) {
-    console.error("❌ Exchange token error:", error);
+    console.error(" Exchange token error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Failed to exchange token",
@@ -154,7 +153,7 @@ exports.syncTransactions = async (req, res, next) => {
     const endDate = moment().format("YYYY-MM-DD");
     const startDate = moment(account.lastSynced).format("YYYY-MM-DD");
 
-    console.log(`🔄 Syncing account ${account.accountName}`);
+    console.log(` Syncing account ${account.accountName}`);
 
     const plaidTransactions = await plaidService.getTransactions(
       account.accessToken,
@@ -175,7 +174,7 @@ exports.syncTransactions = async (req, res, next) => {
     account.lastSynced = new Date();
     await account.save();
 
-    console.log(`✅ Synced ${syncedIds.length} transactions`);
+    console.log(` Synced ${syncedIds.length} transactions`);
 
     res.json({
       success: true,
@@ -185,7 +184,7 @@ exports.syncTransactions = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("❌ Sync error:", error);
+    console.error(" Sync error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Failed to sync transactions",
@@ -221,7 +220,7 @@ exports.removeAccount = async (req, res, next) => {
       message: "Account removed successfully",
     });
   } catch (error) {
-    console.error("❌ Remove account error:", error);
+    console.error(" Remove account error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Failed to remove account",
