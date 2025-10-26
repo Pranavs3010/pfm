@@ -81,5 +81,5 @@ For the industry, such platforms drive user engagement and provide anonymized da
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/pfm-dashboard.git
-cd pfm-dashboard
+git clone https://github.com/Pranavs3010/pfm.git
+cd pfm
