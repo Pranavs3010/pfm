@@ -16,3 +16,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 export default ProtectedRoute;
+
+/*
+  This commit is done from Akmain branch
+*/
