@@ -9,6 +9,7 @@ const config = require("./config/config");
 const errorHandler = require("./middleware/errorHandler");
 const logger = require("./utils/logger");
 
+
 // Import routes
 const authRoutes = require("./routes/auth");
 const plaidRoutes = require("./routes/plaid");

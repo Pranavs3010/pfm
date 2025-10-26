@@ -124,3 +124,7 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+/*
+  This commit is done from Akmain branch
+*/

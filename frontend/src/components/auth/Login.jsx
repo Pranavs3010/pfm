@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext"; // Make sure this path is correct
 import { Eye, EyeOff, LogIn } from "lucide-react";
 
 const Login = () => {
@@ -9,138 +9,73 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login, error } = useAuth();
+  // Assuming useAuth() provides these. Update if your context is different.
+  const { login, error } = useAuth() || {}; // Added fallback just in case
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!login) return; // Don't submit if login function isn't available
+
     setIsLoading(true);
 
+    // Ensure login returns an object with a 'success' property
     const result = await login({ email, password });
 
-    if (result.success) {
+    if (result && result.success) {
       navigate("/dashboard");
     }
 
     setIsLoading(false);
   };
 
-  // Inline styles as fallback
-  const styles = {
-    container: {
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2rem 1rem",
-      backgroundColor: "#f9fafb",
-    },
-    card: {
-      maxWidth: "28rem",
-      width: "100%",
-      padding: "2rem",
-      backgroundColor: "white",
-      borderRadius: "0.5rem",
-      boxShadow:
-        "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-    },
-    logo: {
-      margin: "0 auto",
-      height: "3rem",
-      width: "3rem",
-      backgroundColor: "#2563eb",
-      borderRadius: "0.5rem",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "white",
-    },
-    title: {
-      marginTop: "1.5rem",
-      textAlign: "center",
-      fontSize: "1.875rem",
-      fontWeight: "800",
-      color: "#1f2937",
-    },
-    subtitle: {
-      marginTop: "0.5rem",
-      textAlign: "center",
-      fontSize: "0.875rem",
-      color: "#6b7280",
-    },
-    link: {
-      color: "#2563eb",
-      fontWeight: "500",
-    },
-    error: {
-      backgroundColor: "#fef2f2",
-      padding: "1rem",
-      borderRadius: "0.375rem",
-      color: "#dc2626",
-      fontSize: "0.875rem",
-    },
-    label: {
-      display: "block",
-      fontSize: "0.875rem",
-      fontWeight: "500",
-      color: "#374151",
-      marginBottom: "0.5rem",
-    },
-    input: {
-      width: "100%",
-      padding: "0.5rem 0.75rem",
-      border: "1px solid #d1d5db",
-      borderRadius: "0.5rem",
-      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-      outline: "none",
-    },
-    inputFocus: {
-      borderColor: "#3b82f6",
-      ring: "2px solid #3b82f6",
-    },
-    button: {
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      padding: "0.75rem 1rem",
-      border: "1px solid transparent",
-      borderRadius: "0.5rem",
-      fontSize: "0.875rem",
-      fontWeight: "500",
-      backgroundColor: "#2563eb",
-      color: "white",
-      cursor: "pointer",
-    },
-    buttonHover: {
-      backgroundColor: "#1d4ed8",
-    },
-    buttonDisabled: {
-      opacity: "0.5",
-      cursor: "not-allowed",
-    },
-  };
-
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    // Page container
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      
+      {/* Login Card */}
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        
+        {/* Header Section */}
         <div>
-          <div style={styles.logo}>
-            <LogIn style={{ height: "1.5rem", width: "1.5rem" }} />
+          {/* Logo */}
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white">
+            <LogIn className="h-6 w-6" />
           </div>
-          <h2 style={styles.title}>Sign in to your account</h2>
-          <p style={styles.subtitle}>
+          
+          {/* Title */}
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          
+          {/* Subtitle / Link to Register */}
+          <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
-            <Link to="/register" style={styles.link}>
+            <Link
+              to="/register"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               create a new account
             </Link>
           </p>
         </div>
 
-        <form style={{ marginTop: "2rem" }} onSubmit={handleSubmit}>
-          {error && <div style={styles.error}>{error}</div>}
+        {/* Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          
+          {/* Error Message Display */}
+          {error && (
+            <div className="rounded-md bg-red-100 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="email" style={styles.label}>
+          {/* Email Input Field */}
+          <div>
+            <label
+              htmlFor="email"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Email address
             </label>
             <input
@@ -151,16 +86,20 @@ const Login = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-              placeholder="Enter your email"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
             />
           </div>
 
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label htmlFor="password" style={styles.label}>
+          {/* Password Input Field */}
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
-            <div style={{ position: "relative" }}>
+            <div className="relative">
               <input
                 id="password"
                 name="password"
@@ -169,72 +108,40 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ ...styles.input, paddingRight: "2.5rem" }}
-                placeholder="Enter your password"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
               />
+              {/* Show/Hide Password Toggle Button */}
               <button
                 type="button"
-                style={{
-                  position: "absolute",
-                  right: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                }}
+                className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff
-                    style={{
-                      height: "1.25rem",
-                      width: "1.25rem",
-                      color: "#9ca3af",
-                    }}
-                  />
+                  <EyeOff className="h-5 w-5 text-gray-400" />
                 ) : (
-                  <Eye
-                    style={{
-                      height: "1.25rem",
-                      width: "1.25rem",
-                      color: "#9ca3af",
-                    }}
-                  />
+                  <Eye className="h-5 w-5 text-gray-400" />
                 )}
               </button>
             </div>
           </div>
 
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
               disabled={isLoading}
-              style={{
-                ...styles.button,
-                ...(isLoading ? styles.buttonDisabled : {}),
-              }}
-              onMouseOver={(e) =>
-                !isLoading &&
-                (e.target.style.backgroundColor =
-                  styles.buttonHover.backgroundColor)
-              }
-              onMouseOut={(e) =>
-                !isLoading &&
-                (e.target.style.backgroundColor = styles.button.backgroundColor)
-              }
+              className="flex w-full justify-center rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
+                // Loading Spinner
                 <div
-                  style={{
-                    animation: "spin 1s linear infinite",
-                    borderRadius: "50%",
-                    height: "1.5rem",
-                    width: "1.5rem",
-                    border: "2px solid transparent",
-                    borderTopColor: "white",
-                  }}
-                ></div>
+                  className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+                  role="status"
+                >
+                  <span className="sr-only">Loading...</span>
+                </div>
               ) : (
                 "Sign in"
               )}

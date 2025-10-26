@@ -78,3 +78,7 @@ const Header = ({ setSidebarOpen }) => {
 };
 
 export default Header;
+
+/*
+  This commit is done from Akmain branch
+*/

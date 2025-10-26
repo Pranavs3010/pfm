@@ -149,3 +149,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 };
 
 export default Sidebar;
+
+/*
+  This commit is done from Akmain branch
+*/

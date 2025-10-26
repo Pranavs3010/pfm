@@ -66,3 +66,7 @@ const SpendingChart = ({ data }) => {
 };
 
 export default SpendingChart;
+
+/*
+  This commit is done from Akmain branch
+*/
