@@ -214,3 +214,8 @@ const Register = () => {
 };
 
 export default Register;
+
+
+/*
+ by Akash raj
+*/
