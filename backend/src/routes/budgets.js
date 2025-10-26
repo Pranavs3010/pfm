@@ -6,6 +6,7 @@ const {
   createBudget,
   updateBudget,
   deleteBudget,
+  fixBudgetPeriods,
 } = require("../controllers/budgetController");
 const { protect } = require("../middleware/auth");
 const { validate, budgetValidation } = require("../middleware/validator");

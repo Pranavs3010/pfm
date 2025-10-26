@@ -23,11 +23,13 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError("");
       const response = await dashboardAPI.getSummary();
+      console.log("📊 Dashboard data received:", response.data.data);
       setDashboardData(response.data.data);
     } catch (err) {
       setError("Failed to load dashboard data");
-      console.error("Dashboard error:", err);
+      console.error("❌ Dashboard error:", err);
     } finally {
       setLoading(false);
     }
@@ -62,7 +64,13 @@ const Dashboard = () => {
       icon: DollarSign,
       color: "text-green-600",
       bgColor: "bg-green-50",
-      format: (val) => `$${val?.toLocaleString() || "0"}`,
+      format: (val) =>
+        `$${
+          val?.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) || "0.00"
+        }`,
     },
     {
       title: "Monthly Income",
@@ -70,7 +78,13 @@ const Dashboard = () => {
       icon: TrendingUp,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      format: (val) => `$${val?.toLocaleString() || "0"}`,
+      format: (val) =>
+        `$${
+          val?.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) || "0.00"
+        }`,
     },
     {
       title: "Monthly Expenses",
@@ -78,7 +92,13 @@ const Dashboard = () => {
       icon: TrendingDown,
       color: "text-red-600",
       bgColor: "bg-red-50",
-      format: (val) => `$${val?.toLocaleString() || "0"}`,
+      format: (val) =>
+        `$${
+          val?.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) || "0.00"
+        }`,
     },
     {
       title: "Savings Rate",
@@ -89,30 +109,7 @@ const Dashboard = () => {
       format: (val) => `${val}%`,
     },
   ];
-  // Add this right after your summary cards section:
-  <div className="card p-4 mb-6 bg-yellow-50">
-    <h3 className="text-lg font-semibold text-yellow-800 mb-2">Data Debug</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-      <div>
-        <p>
-          <strong>Monthly Trends:</strong>{" "}
-          {dashboardData?.monthlyTrends?.length || 0} items
-        </p>
-        <p>
-          <strong>Category Spending:</strong>{" "}
-          {dashboardData?.categorySpending?.length || 0} items
-        </p>
-      </div>
-      <div>
-        <p>
-          <strong>Income:</strong> ${dashboardData?.summary?.monthlyIncome}
-        </p>
-        <p>
-          <strong>Expenses:</strong> ${dashboardData?.summary?.monthlyExpenses}
-        </p>
-      </div>
-    </div>
-  </div>;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -146,22 +143,71 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Charts and Budgets Grid */}
+      {/* Debug Info - Remove in production */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="card p-4 bg-blue-50">
+          <h3 className="text-sm font-semibold text-blue-800 mb-2">
+            Debug Info
+          </h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              Monthly Trends: {dashboardData?.monthlyTrends?.length || 0} items
+            </div>
+            <div>
+              Category Spending: {dashboardData?.categorySpending?.length || 0}{" "}
+              items
+            </div>
+            <div>
+              Income: ${dashboardData?.summary?.monthlyIncome?.toFixed(2) || 0}
+            </div>
+            <div>
+              Expenses: $
+              {dashboardData?.summary?.monthlyExpenses?.toFixed(2) || 0}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Income vs Expenses Chart */}
         <div className="card p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Income vs Expenses
+            Income vs Expenses (Last 6 Months)
           </h2>
-          <IncomeExpenseChart data={dashboardData?.monthlyTrends || []} />
+          {dashboardData?.monthlyTrends &&
+          dashboardData.monthlyTrends.length > 0 ? (
+            <IncomeExpenseChart data={dashboardData.monthlyTrends} />
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="text-center">
+                <AlertCircle className="mx-auto h-12 w-12 mb-2" />
+                <p>No transaction data available</p>
+                <p className="text-sm">Connect an account to see your trends</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Spending by Category */}
         <div className="card p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Spending by Category
+            Spending by Category (This Month)
           </h2>
-          <SpendingChart data={dashboardData?.categorySpending || []} />
+          {dashboardData?.categorySpending &&
+          dashboardData.categorySpending.length > 0 ? (
+            <SpendingChart data={dashboardData.categorySpending} />
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="text-center">
+                <AlertCircle className="mx-auto h-12 w-12 mb-2" />
+                <p>No spending data available</p>
+                <p className="text-sm">
+                  Make some transactions to see categories
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -183,37 +229,40 @@ const Dashboard = () => {
             <div className="space-y-3">
               {dashboardData.recentTransactions
                 .slice(0, 5)
-                .map((transaction) => (
-                  <div
-                    key={transaction._id}
-                    className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {transaction.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {transaction.account?.institutionName} •{" "}
-                        {transaction.primaryCategory}
-                      </p>
+                .map((transaction) => {
+                  // In Plaid: negative = income, positive = expense
+                  const isIncome = transaction.amount < 0;
+                  const displayAmount = Math.abs(transaction.amount);
+
+                  return (
+                    <div
+                      key={transaction._id}
+                      className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {transaction.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {transaction.account?.institutionName} •{" "}
+                          {transaction.primaryCategory}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`font-medium ${
+                            isIncome ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {isIncome ? "+" : "-"}${displayAmount.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p
-                        className={`font-medium ${
-                          transaction.amount < 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {transaction.amount < 0 ? "+" : "-"}$
-                        {Math.abs(transaction.amount).toFixed(2)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         )}

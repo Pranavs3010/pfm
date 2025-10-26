@@ -1,7 +1,7 @@
 import React from "react";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,39 +11,97 @@ import {
 } from "recharts";
 
 const IncomeExpenseChart = ({ data }) => {
-  // Transform data for chart with better error handling
+  console.log("📊 Chart received data:", data);
+
+  // Transform MongoDB aggregation data to chart format
   const chartData =
     Array.isArray(data) && data.length > 0
-      ? data.map((item) => ({
-          name: `${item._id?.year || new Date().getFullYear()}-${String(
-            item._id?.month || new Date().getMonth() + 1
-          ).padStart(2, "0")}`,
-          Income: Math.round(item.income || 0),
-          Expenses: Math.round(item.expenses || 0),
-        }))
-      : [
-          { name: "2024-01", Income: 5000, Expenses: 3500 },
-          { name: "2024-02", Income: 5200, Expenses: 3800 },
-          { name: "2024-03", Income: 4800, Expenses: 3200 },
-        ];
+      ? data.map((item) => {
+          const year = item._id?.year || new Date().getFullYear();
+          const month = item._id?.month || new Date().getMonth() + 1;
+
+          return {
+            name: `${year}-${String(month).padStart(2, "0")}`,
+            month: new Date(year, month - 1).toLocaleDateString("en-US", {
+              month: "short",
+            }),
+            income: Math.round(item.income || 0),
+            expenses: Math.round(item.expenses || 0),
+          };
+        })
+      : [];
+
+  console.log("📈 Transformed chart data:", chartData);
+
+  // If no data, show message
+  if (chartData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        <div className="text-center">
+          <p>No transaction data available</p>
+          <p className="text-sm mt-2">
+            Connect an account and sync transactions
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+      <LineChart data={chartData}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <XAxis
+          dataKey="month"
+          tick={{ fontSize: 12, fill: "#6b7280" }}
+          stroke="#9ca3af"
+        />
         <YAxis
-          tick={{ fontSize: 12 }}
-          tickFormatter={(value) => `$${value / 1000}k`}
+          tick={{ fontSize: 12, fill: "#6b7280" }}
+          tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
+          stroke="#9ca3af"
         />
         <Tooltip
-          formatter={(value) => [`$${value.toLocaleString()}`, ""]}
-          labelFormatter={(label) => `Period: ${label}`}
+          formatter={(value, name) => [
+            `$${value.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`,
+            name === "income" ? "Income" : "Expenses",
+          ]}
+          labelFormatter={(label, payload) => {
+            if (payload && payload[0]) {
+              return `Period: ${payload[0].payload.name}`;
+            }
+            return label;
+          }}
+          contentStyle={{
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.5rem",
+            padding: "0.75rem",
+          }}
         />
-        <Legend />
-        <Bar dataKey="Income" fill="#10b981" name="Income" />
-        <Bar dataKey="Expenses" fill="#ef4444" name="Expenses" />
-      </BarChart>
+        <Legend wrapperStyle={{ paddingTop: "1rem" }} iconType="line" />
+        <Line
+          type="monotone"
+          dataKey="income"
+          stroke="#10b981"
+          strokeWidth={2}
+          name="Income"
+          dot={{ fill: "#10b981", r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="expenses"
+          stroke="#ef4444"
+          strokeWidth={2}
+          name="Expenses"
+          dot={{ fill: "#ef4444", r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+      </LineChart>
     </ResponsiveContainer>
   );
 };
